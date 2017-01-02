@@ -14,21 +14,19 @@ Inspired by Rust, CMS based on Iron CMS & Nickel Framework
 * We trying develop full-featured tool, including: templates, for fetching and validation, auth, cookies, session, database, http-security tools,cloud integration, admin/backend tools, caching, migrations, CI-orientation, flexible integration new features.
 * We want to attract interest in Rust and to the fact that web development with Rust is funny and effective.
 
-#### Web site
-https://iron-cms.github.io
 
 #### Current status:
 Active development
 
 #### How to build and run:
 ```
-$ git clone http://github.com/mrlsd/iron-cms
+$ git clone http://github.com/iron-cms/nickel-cms
 $ make release
-$ target/release/iron-cms
+$ target/release/nickel-cms
 ```
 
 #### Requirements:
-* Rust 1.13+
+* Rust 1.8.0+
   
 #### Some useful command:
 * **install Rust:** `make install`
