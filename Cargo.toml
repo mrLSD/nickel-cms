@@ -2,6 +2,7 @@
 name = "nickel-cms"
 version = "0.3.0"
 authors = ["Evgeny Ukhanov <mrlsd@ya.ru>"]
+# build = false
 
 [dependencies]
 nickel = "*"
