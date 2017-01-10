@@ -1,7 +1,7 @@
-# Iron CMS
-[![Build Status](https://travis-ci.org/mrLSD/iron-cms.svg?branch=master)](https://travis-ci.org/mrLSD/iron-cms) [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/mrLSD/iron-cms/master/LICENSE)
+# Nickel CMS
+[![Build Status](https://travis-ci.org/iron-cms/nickel-cms.svg?branch=master)](https://travis-ci.org/iron-cms/nickel-cms) [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/iron-cms/nickel-cms/master/LICENSE)
 
-Inspired by Rust, CMS based on Iron framework
+Inspired by Rust, CMS based on Iron CMS & Nickel Framework
 
 ### Our aims and basic features
 
