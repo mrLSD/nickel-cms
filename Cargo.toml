@@ -2,9 +2,14 @@
 name = "nickel-cms"
 version = "0.3.0"
 authors = ["Evgeny Ukhanov <mrlsd@ya.ru>"]
-# build = false
+build = "src/build.rs"
 
 [dependencies]
 nickel = "*"
 rustc-serialize = "*"
 toml = "*"
+nickel_postgres = "*"
+ructe = "*"
+
+[build-dependencies]
+ructe = "*"

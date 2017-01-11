@@ -2,11 +2,14 @@
 extern crate rustc_serialize;
 extern crate toml;
 
+include!(concat!(env!("OUT_DIR"), "/templates.rs"));
+pub use templates::*;
+
 use nickel::{Nickel, Mountable, StaticFilesHandler};
 
 mod admin;
+pub mod middleware;
 pub mod config;
-//pub use config;
 
 /// Build all routers rule
 pub fn routers(server: &mut Nickel<config::Config>) {

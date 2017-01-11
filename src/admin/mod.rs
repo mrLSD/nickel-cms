@@ -9,10 +9,15 @@ pub use nickel::{
     Response
 };
 pub use config::{Config};
+use middleware::render;
+use templates::*;
+use tera::{Context};
+use middleware::TEMPLATES;
 
-fn handler<'mw>(req: &mut Request<Config>, res: Response<'mw, Config>) -> MiddlewareResult<'mw, Config> {
-    let config = req.server_data();
-    res.send(format!("Server port: {}", config.server.port))
+fn handler<'mw>(_req: &mut Request<Config>, res: Response<'mw, Config>) -> MiddlewareResult<'mw, Config> {
+    render(res, |o| hello(o))
+//    let config = req.server_data();
+//    res.send(format!("Server port: {}", config.server.port))
 }
 
 pub fn routers() -> Router<Config> {
@@ -20,7 +25,7 @@ pub fn routers() -> Router<Config> {
     router.get("/", middleware!{
         "admin/index"
     });
-    router.get("/pages", middleware!{
+    router.get("/pages", middleware! {
         "admin/pages"
     });
     router.get("/config", handler);
