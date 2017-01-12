@@ -6,4 +6,5 @@ authors = ["Evgeny Ukhanov <mrlsd@ya.ru>"]
 
 [dependencies]
 nickel = "*"
-toml-config = "*"
+rustc-serialize = "*"
+toml = "*"
