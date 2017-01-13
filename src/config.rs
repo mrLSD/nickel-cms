@@ -5,14 +5,14 @@ use toml;
 
 #[derive(Debug, RustcEncodable, RustcDecodable)]
 pub struct Config {
-    server: ServerConfig,
+    pub server: ServerConfig,
 }
 
 #[derive(Debug, RustcEncodable, RustcDecodable)]
-struct ServerConfig {
-    host: String,
-    port: u16,
-    threads: u16,
+pub struct ServerConfig {
+    pub host: String,
+    pub port: u16,
+    pub threads: u16,
 }
 
 pub fn load_config() -> Config {

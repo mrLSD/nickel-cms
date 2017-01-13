@@ -6,9 +6,10 @@ use nickel::{Nickel, Mountable, StaticFilesHandler};
 
 mod admin;
 pub mod config;
+//pub use config;
 
 /// Build all routers rule
 pub fn routers(server: &mut Nickel<config::Config>) {
-    //server.mount("/admin/", admin::routers());
+    server.mount("/admin/", admin::routers());
     server.mount("/", StaticFilesHandler::new("assets/"));
 }

@@ -3,10 +3,19 @@ pub use nickel::{
     Mount,
     HttpRouter,
     Router,
-    Middleware
+    Middleware,
+    MiddlewareResult,
+    Request,
+    Response
 };
+pub use config::{Config};
 
-pub fn routers() -> Router {
+fn handler<'mw>(req: &mut Request<Config>, res: Response<'mw, Config>) -> MiddlewareResult<'mw, Config> {
+    let config = req.server_data();
+    res.send(format!("Server port: {}", config.server.port))
+}
+
+pub fn routers() -> Router<Config> {
     let mut router = Router::new();
     router.get("/", middleware!{
         "admin/index"
@@ -14,5 +23,6 @@ pub fn routers() -> Router {
     router.get("/pages", middleware!{
         "admin/pages"
     });
+    router.get("/config", handler);
     router
 }
