@@ -28,6 +28,9 @@ pub fn routers() -> Router<Config> {
     router.get("/pages", middleware! {
         "admin/pages"
     });
+    router.get("/tera", middleware! {
+        TEMPLATES.render("hello.html", Context::new()).unwrap()
+    });
     router.get("/config", handler);
     router
 }

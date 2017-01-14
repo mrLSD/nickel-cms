@@ -10,6 +10,8 @@ rustc-serialize = "*"
 toml = "*"
 nickel_postgres = "*"
 ructe = "*"
+tera = "*"
+lazy_static = "*"
 
 [build-dependencies]
 ructe = "*"

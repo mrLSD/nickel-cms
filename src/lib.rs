@@ -2,6 +2,9 @@
 extern crate rustc_serialize;
 extern crate toml;
 
+#[macro_use] extern crate tera;
+#[macro_use] extern crate lazy_static;
+
 include!(concat!(env!("OUT_DIR"), "/templates.rs"));
 pub use templates::*;
 
