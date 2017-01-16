@@ -17,5 +17,5 @@ pub mod config;
 /// Build all routers rule
 pub fn routers(server: &mut Nickel<config::Config>) {
     server.mount("/admin/", admin::routers());
-    server.mount("/", StaticFilesHandler::new("assets/"));
+    server.mount("/assets/", StaticFilesHandler::new("static/"));
 }
