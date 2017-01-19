@@ -10,12 +10,12 @@ pub use nickel::{
 };
 pub use config::{Config};
 use middleware::render;
-use templates::*;
+use templates;
 use tera::{Context};
 use middleware::TEMPLATES;
 
 fn handler<'mw>(_req: &mut Request<Config>, res: Response<'mw, Config>) -> MiddlewareResult<'mw, Config> {
-    render(res, |o| hello(o))
+    render(res, |o| templates::hello(o))
 //    let config = req.server_data();
 //    res.send(format!("Server port: {}", config.server.port))
 }
