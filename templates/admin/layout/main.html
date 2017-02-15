@@ -1,0 +1,26 @@
+{% include "admin/layout/_header.html" %}
+	<div id="container">
+		<!-- start header -->
+		<header>
+			<h1 class="logo"><a href="/">Iron CMS</a></h1>
+			<section class="log-area">
+				<div class="section-inner">
+					<strong>Logged in as Admin</strong>
+					<a href="/admin/logout" class="btn-2"><span>Logout</span><em class="arrow"></em></a>
+				</div>
+			</section>
+			<section>
+				<div class="section-inner">
+					<a href="/" class="btn-1"><em class="view"></em><span>View Website</span></a>
+				</div>
+			</section>
+		</header>
+		<!-- end header -->
+		<div id="main" role="main">
+{% include "admin/layout/_sidebar.html" %}
+			<div id="content">
+{% block content %}{% endblock content %}
+			</div>
+		</div>
+	</div>
+{% include "admin/layout/_footer.html" %}
