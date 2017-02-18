@@ -1,5 +1,5 @@
 use super::*;
-use middleware::form_validator::FormValidator;
+use middleware::form_validator::*;
 
 #[derive(Debug)]
 pub struct PageForm {
@@ -23,6 +23,10 @@ pub struct PageFormPapers {
 }
 
 impl FormValidator for PageForm {
+    fn validators() -> Validators {
+        println!("Init validators");
+        Validators {}
+    }
     fn fill_form(form_data: &Params) -> Self {
         let mut done_c: Vec<String> = Vec::new();
         for v in form_data.all("done.c[]").unwrap() {
