@@ -14,8 +14,10 @@ pub trait FormValidator {
             -> Result<Self, FormValidationErrors>
             where Self: std::marker::Sized {
         let _validators = Self::validators();
-        Ok(Self::fill_form(form_data))
+        Ok(Self::fill_form(form_data)?)
     }
     fn validators() -> Validators;
-    fn fill_form(form_data: &Params) -> Self;
+    fn fill_form(form_data: &Params)
+            -> Result<Self, FormValidationErrors>
+            where Self: std::marker::Sized;
 }

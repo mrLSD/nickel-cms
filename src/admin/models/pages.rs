@@ -27,11 +27,13 @@ impl FormValidator for PageForm {
         println!("Init validators");
         Validators {}
     }
-    fn fill_form(form_data: &Params) -> Self {
+
+    fn fill_form(form_data: &Params) -> Result<Self, FormValidationErrors> {
         let mut done_c: Vec<String> = Vec::new();
         for v in form_data.all("done.c[]").unwrap() {
             done_c.push(v.to_owned());
         }
+        let _t: String = form_data.get("done.a").unwrap().parse().unwrap();
         let page_form_done = PageFormDone {
             a: form_data.get("done.a").unwrap().parse().unwrap(),
             b: form_data.get("done.b").unwrap().parse().unwrap(),
@@ -45,12 +47,12 @@ impl FormValidator for PageForm {
                 pages: papers_pages[i].parse().unwrap(),
             })
         }
-        PageForm {
+        Ok(PageForm {
             title: form_data.get("title").unwrap().parse().unwrap(),
             age: form_data.get("age").unwrap().parse().unwrap(),
             done: page_form_done,
             papers: page_form_papers,
-        }
+        })
     }
 
 }
