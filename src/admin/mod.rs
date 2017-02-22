@@ -1,16 +1,5 @@
-pub use nickel::{
-    Nickel,
-    Mount,
-    HttpRouter,
-    Router,
-    Middleware,
-    MiddlewareResult,
-    Request,
-    Response
-};
+pub use nickel::{HttpRouter, Router};
 pub use config::{Config};
-use tera::{Context};
-use middleware::TEMPLATES;
 pub mod handlers;
 
 pub fn routers() -> Router<Config> {
@@ -21,8 +10,5 @@ pub fn routers() -> Router<Config> {
     router.get("/pages/create", handlers::pages::get_create);
     router.post("/pages/create", handlers::pages::post_create);
 
-    router.get("/tera", middleware! {
-        TEMPLATES.render("hello.html", Context::new()).unwrap()
-    });
     router
 }
