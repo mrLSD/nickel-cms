@@ -21,12 +21,12 @@ Active development
 #### How to build and run:
 ```
 $ git clone http://github.com/irony-rust/nickel-cms
-$ cargo buile --release
+$ cargo build --release
 $ target/release/nickel-cms
 ```
 
 #### Requirements:
-* Rust 1.13.0+
+* Rust 1.15.0+
   
 #### Some useful commands:
 * **install Rust:** `make install`
