@@ -1,5 +1,6 @@
 #[macro_use] extern crate nickel;
 extern crate rustc_serialize;
+#[macro_use] extern crate serde_derive;
 extern crate toml;
 
 #[macro_use] extern crate tera;
