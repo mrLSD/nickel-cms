@@ -1,5 +1,5 @@
 # Nickel CMS
-[![Build Status](https://travis-ci.org/iron-cms/nickel-cms.svg?branch=master)](https://travis-ci.org/iron-cms/nickel-cms) [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/iron-cms/nickel-cms/master/LICENSE)
+[![Build Status](https://travis-ci.org/irony-rust/nickel-cms.svg?branch=master)](https://travis-ci.org/irony-rust/nickel-cms) [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/irony-rust/nickel-cms/master/LICENSE)
 
 Inspired by Rust, CMS based on Iron CMS & Nickel Framework
 
@@ -20,20 +20,19 @@ Active development
 
 #### How to build and run:
 ```
-$ git clone http://github.com/iron-cms/nickel-cms
-$ make release
+$ git clone http://github.com/irony-rust/nickel-cms
+$ cargo buile --release
 $ target/release/nickel-cms
 ```
 
 #### Requirements:
-* Rust 1.8.0+
+* Rust 1.13.0+
   
-#### Some useful command:
+#### Some useful commands:
 * **install Rust:** `make install`
-* **run:** `make`
-* **build:** `make build`
-* **release build:** `make release`
-* **test:** `make test`
+* **run:** `cargo run` or `make`
+* **build:** `cargo build` or `make build`
+* **release build:** `cargo build --release` or `make release`
+* **test:** `cargo test` or `make test`
 
-
-####License: MIT
+#### License: MIT

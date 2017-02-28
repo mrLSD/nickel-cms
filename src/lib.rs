@@ -1,13 +1,12 @@
 #[macro_use] extern crate nickel;
 extern crate rustc_serialize;
-#[macro_use] extern crate serde_derive;
 extern crate toml;
 
 #[macro_use] extern crate tera;
 #[macro_use] extern crate lazy_static;
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs"));
-pub use templates::*;
+//pub use templates::*;
 
 use nickel::{Nickel, Mountable, StaticFilesHandler};
 
