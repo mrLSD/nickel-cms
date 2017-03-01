@@ -4,5 +4,5 @@ pub fn get_main<'mw>(_: &mut Request<Config>, res: Response<'mw, Config>) -> Mid
     let mut header = HeaderData::new();
     header.title = "Pages";
     header.action = "pages";
-    render(res, |o| templates::admin::main::index(o, &header))
+    render(res, |o| templates::admin::pages::index(o, &header))
 }

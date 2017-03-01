@@ -1,8 +1,9 @@
 @use templates::admin::layout::*;
-@()
+@use admin::handlers::HeaderData;
+@(h: &HeaderData)
 
-
+@:header(h)
 <div class="page-title">
-	<h2>admin/pages</h2>
+	<h2>Site Pages</h2>
 </div>
 @:footer()
