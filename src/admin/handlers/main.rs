@@ -1,12 +1,18 @@
-use iron::prelude::*;
+pub use nickel::{
+    Nickel,
+    Mount,
+    HttpRouter,
+    Router,
+    Middleware,
+    MiddlewareResult,
+    Request,
+    Response
+};
+use middleware::render;
+use templates;
+use config::{Config};
 use super::*;
 
-fn default_param() -> BaseDataMap {
-    btreemap! {
-        "module".to_string() => "main".to_json(),
-    }
-}
-
-pub fn get_main(_: &mut Request) -> RenderResult {
-    Render::new("admin/main/index", default_param())
+pub fn get_main<'mw>(_req: &mut Request<Config>, res: Response<'mw, Config>) -> MiddlewareResult<'mw, Config> {
+    render(res, |o| templates::hello(o))
 }

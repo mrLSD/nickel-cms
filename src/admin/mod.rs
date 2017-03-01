@@ -13,6 +13,7 @@ use middleware::render;
 use templates;
 use tera::{Context};
 use middleware::TEMPLATES;
+mod handlers;
 
 fn handler<'mw>(_req: &mut Request<Config>, res: Response<'mw, Config>) -> MiddlewareResult<'mw, Config> {
     render(res, |o| templates::hello(o))
@@ -22,9 +23,7 @@ fn handler<'mw>(_req: &mut Request<Config>, res: Response<'mw, Config>) -> Middl
 
 pub fn routers() -> Router<Config> {
     let mut router = Router::new();
-    router.get("/", middleware!{
-        "admin/index"
-    });
+    router.get("/", handlers::main::get_main);
     router.get("/pages", middleware! {
         "admin/pages"
     });
