@@ -1,12 +1,12 @@
 @use templates::admin::layout::sidebar;
 @use templates::helpers::*;
-@* Basic header *@
-@()
+@use admin::handlers::main::HeaderData;
+@(h: &HeaderData)
 
 <!doctype html>
 <html lang="en" class="no-js">
 <head>
-    <title>Backend area | </title>
+    <title>Backend area | @h.title</title>
     <meta charset="UTF-8">
     <meta name="description" content="">
     <meta name="author" content="">
