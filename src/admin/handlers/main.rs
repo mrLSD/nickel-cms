@@ -14,5 +14,5 @@ use config::{Config};
 use super::*;
 
 pub fn get_main<'mw>(_req: &mut Request<Config>, res: Response<'mw, Config>) -> MiddlewareResult<'mw, Config> {
-    render(res, |o| templates::hello(o))
+    render(res, |o| templates::admin::main::index(o))
 }
