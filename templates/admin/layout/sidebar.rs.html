@@ -1,11 +1,13 @@
-@()
+@use templates::admin::helpers::active;
+@use admin::handlers::main::HeaderData;
+@(h: &HeaderData)
 
-			<!-- start sidebar -->
+		<!-- start sidebar -->
 			<div id="sidebar">
 				<!-- start main-nav -->
 				<ul class="main-nav">
-					<li class="dashboard active"><a href="/admin.html"><span>Dashboard</span></a></li>
-					<li class="pages active"><a href="/admin/pages.html"><span>Pages</span></a></li>
+					<li class="dashboard @if h.is_active("main") { active }"><a href="/admin.html"><span>Dashboard</span></a></li>
+					<li class="pages @if h.is_active("pages") { active }"><a href="/admin/pages.html"><span>Pages</span></a></li>
 				</ul>
 				<!-- end main-nav -->
 			</div>
