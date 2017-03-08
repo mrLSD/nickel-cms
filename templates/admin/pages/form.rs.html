@@ -1,0 +1,81 @@
+@use templates::admin::layout::*;
+@use admin::handlers::HeaderData;
+@(h: &HeaderData)
+
+@:header(h)
+<div class="page-title">
+    <h2>Page <span>Add new</span></h2>
+</div>
+<div class="content-box">
+        <div class="box-header empty"></div>
+        <div class="box-content">
+            <form id="page-form" method="POST" action="/admin/pages/pages">
+                <fieldset class="form">
+<input type="submit" value="Send"/>
+<div class="form-row">
+    <label for="title">Title</label>
+    <div class="input-holder">
+        <input name="title" id="title" type="text" value="Test Title"/>
+    </div>
+</div>
+<div class="form-row">
+    <label for="age">Age</label>
+    <div class="input-holder">
+        <input name="age" id="age" type="text" value="32"/>
+    </div>
+</div>
+
+<div class="form-row">
+    <label for="done.a">Done A</label>
+    <div class="input-holder">
+        <input name="done.a" id="done.a" type="text" value="Done A"/>
+    </div>
+</div>
+<div class="form-row">
+    <label for="done.b">Done B</label>
+    <div class="input-holder">
+        <input name="done.b" id="done.b" type="text" value="20.1"/>
+    </div>
+</div>
+<div class="form-row">
+    <label for="done.c1">Done C</label>
+    <div class="input-holder">
+        <input name="done.c[]" id="done.c1" type="text" value="Done C1"/>
+    </div>
+</div>
+<div class="form-row">
+    <label for="done.c2">Done C</label>
+    <div class="input-holder">
+        <input name="done.c[]" id="done.c2" type="text" value="Done C2"/>
+    </div>
+</div>
+
+<div class="form-row">
+    <label for="papers1.title">Papers Titlte</label>
+    <div class="input-holder">
+        <input name="papers[].title" id="papers1.title" type="text" value="Papers Title 1"/>
+    </div>
+</div>
+<div class="form-row">
+    <label for="papers1.pages">Papers Pages</label>
+    <div class="input-holder">
+        <input name="papers[].pages" id="papers1.pages" type="text" value="100"/>
+    </div>
+</div>
+<div class="form-row">
+    <label for="papers2.title">Papers Titlte</label>
+    <div class="input-holder">
+        <input name="papers[].title" id="papers2.title" type="text" value="Papers Title 2"/>
+    </div>
+</div>
+<div class="form-row">
+    <label for="papers2.pages">Papers Pages</label>
+    <div class="input-holder">
+        <input name="papers[].pages" id="papers2.pages" type="text" value="200"/>
+    </div>
+</div>
+                </fieldset>
+            </form>
+        </div>
+</div>
+@:footer()

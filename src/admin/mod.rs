@@ -10,5 +10,8 @@ pub fn routers() -> Router<Config> {
     router.get("/pages/create", handlers::pages::get_create);
     router.post("/pages/create", handlers::pages::post_create);
 
+    router.get("/pages/pages", handlers::pages::get_pages);
+    router.post("/pages/pages", handlers::pages::post_pages);
+
     router
 }
