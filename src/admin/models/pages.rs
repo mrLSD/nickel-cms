@@ -1,9 +1,6 @@
 use params::{Map};
 use super::*;
 
-use diesel::prelude::*;
-use diesel;
-
 #[derive(RustcDecodable, Debug)]
 pub struct Pages {
     pub title: String,

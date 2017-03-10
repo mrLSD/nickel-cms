@@ -6,7 +6,8 @@ pub use nickel::{
     Middleware,
     MiddlewareResult,
     Request,
-    Response
+    Response,
+    FormBody,
 };
 use middleware::render;
 use templates;
