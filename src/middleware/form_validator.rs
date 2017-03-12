@@ -8,8 +8,10 @@ use std::collections::HashMap;
 #[derive(Debug)]
 pub struct Validators;
 
+pub type FormValidationErrors<'a> = HashMap<&'a str, Vec<FormValidationError>>;
+
 #[derive(Debug, Clone)]
-pub enum FormValidationErrors {
+pub enum FormValidationError {
     FieldNotExist,
     ParseError
 }
@@ -29,23 +31,23 @@ pub trait FormValidator {
 }
 
 fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
-    let mut validation_errors: HashMap<&str, Vec<FormValidationErrors>> = HashMap::new();
+    let mut validation_errors: FormValidationErrors = HashMap::new();
     let field_name = "done.a1";
 
     let get_data: Option<String> = form_data.get(field_name)
-        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationErrors::FieldNotExist) )
-        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationErrors::ParseError) ));
+        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist) )
+        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError) ));
     println!("DATA: {:#?}", get_data);
 
     let field_name = "done.a";
     let _: Option<i32> = form_data.get(field_name)
-        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationErrors::FieldNotExist) )
-        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationErrors::ParseError) ));
+        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist) )
+        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError) ));
     println!("DATA: {:#?}", get_data);
 
     let get_data: Option<String> = form_data.get(field_name)
-        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationErrors::FieldNotExist) )
-        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationErrors::ParseError) ));
+        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist) )
+        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError) ));
     println!("DATA: {:#?}", get_data);
     println!("Err: {:#?}", validation_errors.len());
     println!("Errors: {:#?}", validation_errors);
@@ -53,7 +55,7 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
     if validation_errors.is_empty() { Ok(()) } else { Err(validation_errors) }
 }
 
-fn add_error<'a, T>(validation_errors: &mut HashMap<&'a str, Vec<FormValidationErrors>>, field: &'a str, error: FormValidationErrors) -> Option<T> {
+fn add_error<'a, T>(validation_errors: &mut FormValidationErrors<'a>, field: &'a str, error: FormValidationError) -> Option<T> {
     if validation_errors.contains_key(&field) {
         let mut err = validation_errors.get_mut(&field).unwrap();
         err.push(error);
