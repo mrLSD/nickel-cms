@@ -1,6 +1,7 @@
 pub use nickel::{HttpRouter, Router};
 pub use config::{Config};
 pub mod handlers;
+pub mod models;
 
 pub fn routers() -> Router<Config> {
     let mut router = Router::new();
