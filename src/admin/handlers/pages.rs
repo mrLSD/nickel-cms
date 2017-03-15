@@ -54,7 +54,10 @@ pub fn post_pages<'mw>(req: &mut Request<Config>, res: Response<'mw, Config>) ->
     println!("Done E: {:#?}", form_data.get("done.e"));
     println!("Papers Titlte: {:#?}", form_data.all("papers[].title"));
     println!("Papers Pages: {:#?}", form_data.all("papers[].pages"));
-    
+    let form_validation = pages::Pages::validate(&form_data);
+    let form_fill= pages::Pages::fill_form(&form_data);
+    println!("FormValidation: {:#?}", form_validation);
+    println!("FormFill: {:#?}", form_fill);
 
     render(res, |o| templates::admin::pages::form(o, &header))
 }

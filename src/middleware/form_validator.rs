@@ -2,6 +2,7 @@ use nickel::{
     Params
 };
 
+#[derive(Debug)]
 pub struct FormValidationErrors;
 
 pub trait FormValidator {
@@ -9,5 +10,5 @@ pub trait FormValidator {
         let _ = form_data;
         Ok(())
     }
-    fn fill_form(&self) -> Self;
+    fn fill_form(form_data: &Params) -> Self;
 }
