@@ -40,10 +40,28 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
     println!("DATA: {:#?}", get_data);
 
     let field_name = "done.a";
-    let _: Option<i32> = form_data.get(field_name)
+
+    // Fetch fields withour any results
+    // We iterate over all fields with `field_name`
+    // Try parse with specific type
+    // We gathering all possible errors, without skiping any posible error
+    form_data.all(field_name)
+        // If field not exist - add error
         .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist) )
-        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError) ));
-    println!("DATA: {:#?}", get_data);
+        .and_then(|v| {
+            // Iterate over fields
+            v.iter()
+                .map(|x| {
+                    // Type inference via Parse
+                    x.parse::<i32>().ok()
+                        // If parse Error - add error
+                        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError));
+                    // Return same field
+                    x
+                }).cloned().collect::<String>();
+            // Guaranty unwrap result
+            Some(1)
+        }).unwrap();
 
     let get_data: Option<String> = form_data.get(field_name)
         .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist) )
