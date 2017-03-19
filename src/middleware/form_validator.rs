@@ -5,6 +5,16 @@ use nickel::{
 use std;
 use std::collections::HashMap;
 
+macro_rules! validators {
+    ( $([$($field:expr),*]: $vtype:ty => $($func:ident$args:tt),*; )+ ) => {
+        $(
+            let v = vec![$($field),*];
+            let y = vec![$($func$args),*];
+            println!("Fn: {:#?}: {:#?}", v, y)
+        )+
+    };
+}
+
 #[derive(Debug)]
 pub struct Validators;
 
@@ -32,13 +42,6 @@ pub trait FormValidator {
 
 fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
     let mut validation_errors: FormValidationErrors = HashMap::new();
-    let field_name = "done.a1";
-
-    let get_data: Option<String> = form_data.get(field_name)
-        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist) )
-        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError) ));
-    println!("DATA: {:#?}", get_data);
-
     let field_name = "done.a";
 
     // Fetch fields withour any results
@@ -62,14 +65,12 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
             // Guaranty unwrap result
             Some(1)
         }).unwrap();
-
-    let get_data: Option<String> = form_data.get(field_name)
-        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist) )
-        .and_then(|o| o.parse().ok().or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError) ));
-    println!("DATA: {:#?}", get_data);
-    println!("Err: {:#?}", validation_errors.len());
     println!("Errors: {:#?}", validation_errors);
 
+    validators! (
+        ["tst1", "tst2"]: i32 => required(), max(20);
+        ["tst3", "tst4"]: i32 => max(41);
+    );
     if validation_errors.is_empty() { Ok(()) } else { Err(validation_errors) }
 }
 
@@ -81,4 +82,12 @@ fn add_error<'a, T>(validation_errors: &mut FormValidationErrors<'a>, field: &'a
         validation_errors.insert(&field, vec!(error));
     }
     None
+}
+
+fn required() {
+    // required template
+}
+
+fn max(value: i32) {
+    // max template
 }
