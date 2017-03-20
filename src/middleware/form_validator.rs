@@ -7,16 +7,50 @@ use std::collections::HashMap;
 
 macro_rules! validators {
     ( $([$($field:expr),*]: $vtype:ty => $($func:ident$args:tt),*; )+ ) => {
+        let mut rules: Vec<ValidatorParams> = Vec::new();
         $(
-            let v = vec![$($field),*];
-            let y = vec![$($func$args),*];
-            println!("Fn: {:#?}: {:#?}", v, y)
+            let fields = vec![$($field),*];
+            let funcs: Vec<fn(ValidatorFuncArgs)> = vec![$($func),*];
+            let validator_func_args = vec!( $(stringify!($args)),* );
+            let validator_ref_type = stringify!($vtype);
+            println!("{:#?}, {:#?}, {:#?}", validator_func_args, validator_ref_type, fields);
+            for func in &funcs {
+                let args = ValidatorFuncArgs::NoParams;
+                println!("func:  [{:#?}]", func(args))
+            }
+            let rule = ValidatorParams {
+                fields: fields,
+                validators: funcs,
+                type_ref: validator_ref_type,
+                validators_arg: validator_func_args,
+            };
+            rules.push(rule);
         )+
+        rules
+    };
+    ( @validator_args $(($(args:expr),*),)* ) => {
+        $(
+            vec!($(args),*)
+        )*
     };
 }
 
 #[derive(Debug)]
 pub struct Validators;
+
+#[derive(Debug)]
+pub enum ValidatorFuncArgs<'a> {
+    NoParams,
+    OneParam(&'a str),
+    TwoParam(&'a str, &'a str),
+}
+
+pub struct ValidatorParams<'a> {
+    pub fields: Vec<&'a str>,
+    pub validators: Vec<fn(ValidatorFuncArgs)>,
+    pub validators_arg: Vec<&'a str>,
+    pub type_ref: &'a str,
+}
 
 pub type FormValidationErrors<'a> = HashMap<&'a str, Vec<FormValidationError>>;
 
@@ -68,8 +102,8 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
     println!("Errors: {:#?}", validation_errors);
 
     validators! (
-        ["tst1", "tst2"]: i32 => required(), max(20);
-        ["tst3", "tst4"]: i32 => max(41);
+        ["tst1", "tst2"]: i32 => required(), max();
+        ["tst3", "tst4"]: i32 => max();
     );
     if validation_errors.is_empty() { Ok(()) } else { Err(validation_errors) }
 }
@@ -84,10 +118,12 @@ fn add_error<'a, T>(validation_errors: &mut FormValidationErrors<'a>, field: &'a
     None
 }
 
-fn required() {
+fn required<'a>(_: ValidatorFuncArgs<'a>) {
+    println!("required");
     // required template
 }
 
-fn max(value: i32) {
+fn max<'a>(_: ValidatorFuncArgs<'a>) {
+    println!("max");
     // max template
 }
