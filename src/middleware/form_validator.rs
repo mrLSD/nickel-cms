@@ -11,13 +11,14 @@ macro_rules! validators {
         $(
             let fields = vec![$($field),*];
             let funcs: Vec<fn(ValidatorFuncArgs)> = vec![$($func),*];
-            let validator_func_args = vec!( $(stringify!($args)),* );
+            //let validator_func_args = vec!( $(stringify!($args)),* );
+            let validator_func_args = vec!("-");
             let validator_ref_type = stringify!($vtype);
             println!("{:#?}, {:#?}, {:#?}", validator_func_args, validator_ref_type, fields);
-            for func in &funcs {
+            /*for func in &funcs {
                 let args = ValidatorFuncArgs::NoParams;
                 println!("func:  [{:#?}]", func(args))
-            }
+            }*/
             let rule = ValidatorParams {
                 fields: fields,
                 validators: funcs,
@@ -25,14 +26,24 @@ macro_rules! validators {
                 validators_arg: validator_func_args,
             };
             rules.push(rule);
+            validators! ( @validator_func $($args),* );
         )+
         rules
     };
-    ( @validator_args $(($(args:expr),*),)* ) => {
+    ( @validator_func $($args:tt),* ) => {
         $(
-            vec!($(args),*)
+            println!("EXPR: {:#?}", validators! ( @validator_func_args $args ));
         )*
     };
+    ( @validator_func_args () ) => {{
+        ValidatorFuncArgs::NoParams
+    }};
+    ( @validator_func_args ($val:expr) ) => {{
+        ValidatorFuncArgs::OneParam(&$val.to_string())
+    }};
+    ( @validator_func_args ($val1:expr, $val2:expr) ) => {{
+        ValidatorFuncArgs::TwoParam(&$val1.to_string(), &$val2.to_string())
+    }};
 }
 
 #[derive(Debug)]
@@ -102,8 +113,8 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
     println!("Errors: {:#?}", validation_errors);
 
     validators! (
-        ["tst1", "tst2"]: i32 => required(), max();
-        ["tst3", "tst4"]: i32 => max();
+        ["tst1", "tst2"]: i32 => required(), max(1);
+        ["tst3", "tst4"]: i32 => max(1, "2+");
     );
     if validation_errors.is_empty() { Ok(()) } else { Err(validation_errors) }
 }
