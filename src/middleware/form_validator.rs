@@ -60,7 +60,7 @@ pub struct ValidatorParam<'a> {
 
 pub type FormValidationErrors<'a> = HashMap<&'a str, Vec<FormValidationError>>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum FormValidationError {
     FieldNotExist,
     ParseError
@@ -97,32 +97,30 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
     for validator in tst {
         for (key, ref val) in validator.validators.iter().enumerate() {
             let args = validator.validators_arg[key].to_owned();
-            let field_name = validator.fields[key];
-            println!("Fields: {:#?}", field_name);
-            println!("Args: {:#?}", args);
-            println!("Fields len: {:#?}", validator.fields.len());
-            println!("Args len: {:#?}", validator.validators_arg.len());
-            //--
+            for field_name in &validator.fields {
+                println!("Fields: {:#?}", field_name);
+                println!("Args: {:#?}", args);
 
-            // Fetch fields withour any results
-            // We iterate over all fields with `field_name`
-            // Try parse with specific type
-            // We gathering all possible errors, without skiping any posible error
-            form_data.all(field_name)
-                // If field not exist - add error
-                .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist))
-                .and_then(|v| {
-                    // Iterate over fields
-                    Some(v.iter()
-                        .map(|x| {
-                            // Type inference via Parse
-                            parse_field! (x, i32).ok()
-                                // If parse Error - add error
-                                .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError));
-                            // Return same field
-                            x
-                        }).cloned().collect::<String>())
-                });
+                // Fetch fields withour any results
+                // We iterate over all fields with `field_name`
+                // Try parse with specific type
+                // We gathering all possible errors, without skiping any posible error
+                form_data.all(field_name)
+                    // If field not exist - add error
+                    .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist))
+                    .and_then(|v| {
+                        // Iterate over fields
+                        Some(v.iter()
+                            .map(|x| {
+                                // Type inference via Parse
+                                parse_field!(x, i32).ok()
+                                    // If parse Error - add error
+                                    .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError));
+                                // Return same field
+                                x
+                            }).cloned().collect::<String>())
+                    });
+            }
         }
     }
 
@@ -149,7 +147,9 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
 fn add_error<'a, T>(validation_errors: &mut FormValidationErrors<'a>, field: &'a str, error: FormValidationError) -> Option<T> {
     if validation_errors.contains_key(&field) {
         let mut err = validation_errors.get_mut(&field).unwrap();
-        err.push(error);
+        if !err.contains(&error) {
+            err.push(error);
+        }
     } else {
         validation_errors.insert(&field, vec!(error));
     }
