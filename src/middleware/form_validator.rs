@@ -6,60 +6,47 @@ use std;
 use std::collections::HashMap;
 
 macro_rules! validators {
-    ( $([$($field:expr),*]: $vtype:ty => $($func:ident$args:tt),*; )+ ) => {
+    ( $([$($field:expr),*]: $vtype:ty => $($func:ident$args:tt),*; )+ ) => {{
         let mut rules: Vec<ValidatorParams> = Vec::new();
         $(
-            let fields = vec![$($field),*];
-            let funcs: Vec<fn(ValidatorFuncArgs)> = vec![$($func),*];
-            //let validator_func_args = vec!( $(stringify!($args)),* );
-            let validator_func_args = vec!("-");
-            let validator_ref_type = stringify!($vtype);
-            println!("{:#?}, {:#?}, {:#?}", validator_func_args, validator_ref_type, fields);
-            /*for func in &funcs {
-                let args = ValidatorFuncArgs::NoParams;
-                println!("func:  [{:#?}]", func(args))
-            }*/
             let rule = ValidatorParams {
-                fields: fields,
-                validators: funcs,
-                type_ref: validator_ref_type,
-                validators_arg: validator_func_args,
+                fields: vec![$($field),*],
+                validators: vec![$($func),*],
+                type_ref: stringify!($vtype),
+                validators_arg: validators! ( @validator_func $($args),* ),
             };
             rules.push(rule);
-            validators! ( @validator_func $($args),* );
         )+
         rules
-    };
-    ( @validator_func $($args:tt),* ) => {
-        $(
-            println!("EXPR: {:#?}", validators! ( @validator_func_args $args ));
-        )*
-    };
+    }};
+    ( @validator_func $($args:tt),* ) => {{
+        vec!( $( validators! ( @validator_func_args $args ) ),* )
+    }};
     ( @validator_func_args () ) => {{
         ValidatorFuncArgs::NoParams
     }};
     ( @validator_func_args ($val:expr) ) => {{
-        ValidatorFuncArgs::OneParam(&$val.to_string())
+        ValidatorFuncArgs::OneParam($val.to_string())
     }};
     ( @validator_func_args ($val1:expr, $val2:expr) ) => {{
-        ValidatorFuncArgs::TwoParam(&$val1.to_string(), &$val2.to_string())
+        ValidatorFuncArgs::TwoParam($val1.to_string(), $val2.to_string())
     }};
 }
 
 #[derive(Debug)]
 pub struct Validators;
 
-#[derive(Debug)]
-pub enum ValidatorFuncArgs<'a> {
+#[derive(Debug, Clone)]
+pub enum ValidatorFuncArgs {
     NoParams,
-    OneParam(&'a str),
-    TwoParam(&'a str, &'a str),
+    OneParam(String),
+    TwoParam(String, String),
 }
 
 pub struct ValidatorParams<'a> {
     pub fields: Vec<&'a str>,
     pub validators: Vec<fn(ValidatorFuncArgs)>,
-    pub validators_arg: Vec<&'a str>,
+    pub validators_arg: Vec<ValidatorFuncArgs>,
     pub type_ref: &'a str,
 }
 
@@ -112,10 +99,22 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
         }).unwrap();
     println!("Errors: {:#?}", validation_errors);
 
-    validators! (
+    let tst: Vec<ValidatorParams> = validators! (
         ["tst1", "tst2"]: i32 => required(), max(1);
         ["tst3", "tst4"]: i32 => max(1, "2+");
     );
+    for vl in tst {
+        println!("Fields: {:#?}", vl.fields);
+        println!("Validators count: {:#?}", vl.validators.len());
+        println!("Args count: {:#?}", vl.validators_arg.len());
+        for (key, ref val) in vl.validators.iter().enumerate() {
+            let args = vl.validators_arg[key].to_owned();
+            val(args);
+            //println!("Index: {:#?}", (*val)(vl.validators_arg[key]));
+            println!("Index: {:#?}", vl.validators_arg[key]);
+            //val(vl.validators_arg[key]);
+        }
+    }
     if validation_errors.is_empty() { Ok(()) } else { Err(validation_errors) }
 }
 
@@ -129,12 +128,12 @@ fn add_error<'a, T>(validation_errors: &mut FormValidationErrors<'a>, field: &'a
     None
 }
 
-fn required<'a>(_: ValidatorFuncArgs<'a>) {
+fn required(_: ValidatorFuncArgs) {
     println!("required");
     // required template
 }
 
-fn max<'a>(_: ValidatorFuncArgs<'a>) {
+fn max(_: ValidatorFuncArgs) {
     println!("max");
     // max template
 }
