@@ -4,6 +4,7 @@ extern crate toml;
 
 #[macro_use] extern crate tera;
 #[macro_use] extern crate lazy_static;
+#[macro_use] pub mod middleware;
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs"));
 //pub use templates::*;
@@ -11,7 +12,6 @@ include!(concat!(env!("OUT_DIR"), "/templates.rs"));
 use nickel::{Nickel, Mountable, StaticFilesHandler};
 
 mod admin;
-pub mod middleware;
 pub mod config;
 
 /// Build all routers rule

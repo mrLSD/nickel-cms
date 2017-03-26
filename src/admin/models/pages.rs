@@ -23,9 +23,12 @@ pub struct PageFormPapers {
 }
 
 impl FormValidator for PageForm {
-    fn validators() -> Validators {
+    fn validators<'a>() -> ValidatorParams<'a> {
         println!("Init validators");
-        Validators {}
+        validators! (
+            ["data.a", "tst2"]: i32 => required(), max(1);
+            ["tst3", "tst4"]: i32 => max(1, "2+");
+        )
     }
 
     fn fill_form(form_data: &Params) -> Result<Self, FormValidationErrors> {

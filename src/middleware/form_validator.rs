@@ -1,15 +1,20 @@
 use nickel::{
     Params,
-    BodyError,
 };
 use std;
 use std::collections::HashMap;
 
+macro_rules! parse_field {
+    ( $field:expr, $vtype:ty ) => {{
+        $field.parse::<$vtype>()
+    }}
+}
+
 macro_rules! validators {
     ( $([$($field:expr),*]: $vtype:ty => $($func:ident$args:tt),*; )+ ) => {{
-        let mut rules: Vec<ValidatorParams> = Vec::new();
+        let mut rules: ValidatorParams = Vec::new();
         $(
-            let rule = ValidatorParams {
+            let rule = ValidatorParam {
                 fields: vec![$($field),*],
                 validators: vec![$($func),*],
                 type_ref: stringify!($vtype),
@@ -33,8 +38,9 @@ macro_rules! validators {
     }};
 }
 
-#[derive(Debug)]
-pub struct Validators;
+pub struct Validators<'a> {
+    validators: ValidatorParams<'a>,
+}
 
 #[derive(Debug, Clone)]
 pub enum ValidatorFuncArgs {
@@ -43,7 +49,9 @@ pub enum ValidatorFuncArgs {
     TwoParam(String, String),
 }
 
-pub struct ValidatorParams<'a> {
+pub type ValidatorParams<'a> = Vec<ValidatorParam<'a>>;
+
+pub struct ValidatorParam<'a> {
     pub fields: Vec<&'a str>,
     pub validators: Vec<fn(ValidatorFuncArgs)>,
     pub validators_arg: Vec<ValidatorFuncArgs>,
@@ -66,43 +74,62 @@ pub trait FormValidator {
         create_validator(&form_data);
         Ok(Self::fill_form(&form_data)?)
     }
-    fn validators() -> Validators;
+    fn validators<'a>() -> ValidatorParams<'a>;
     fn fill_form(form_data: &Params)
             -> Result<Self, FormValidationErrors>
             where Self: std::marker::Sized;
 }
 
+impl<'a> Validators<'a> {
+    fn new(validators: ValidatorParams) {
+//--
+    }
+}
+
 fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
     let mut validation_errors: FormValidationErrors = HashMap::new();
-    let field_name = "done.a";
 
-    // Fetch fields withour any results
-    // We iterate over all fields with `field_name`
-    // Try parse with specific type
-    // We gathering all possible errors, without skiping any posible error
-    form_data.all(field_name)
-        // If field not exist - add error
-        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist) )
-        .and_then(|v| {
-            // Iterate over fields
-            v.iter()
-                .map(|x| {
-                    // Type inference via Parse
-                    x.parse::<i32>().ok()
-                        // If parse Error - add error
-                        .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError));
-                    // Return same field
-                    x
-                }).cloned().collect::<String>();
-            // Guaranty unwrap result
-            Some(1)
-        }).unwrap();
-    println!("Errors: {:#?}", validation_errors);
-
-    let tst: Vec<ValidatorParams> = validators! (
+    let tst = validators! (
         ["tst1", "tst2"]: i32 => required(), max(1);
         ["tst3", "tst4"]: i32 => max(1, "2+");
     );
+
+    for validator in tst {
+        for (key, ref val) in validator.validators.iter().enumerate() {
+            let args = validator.validators_arg[key].to_owned();
+            let field_name = validator.fields[key];
+            println!("Fields: {:#?}", field_name);
+            println!("Args: {:#?}", args);
+            println!("Fields len: {:#?}", validator.fields.len());
+            println!("Args len: {:#?}", validator.validators_arg.len());
+            //--
+
+            // Fetch fields withour any results
+            // We iterate over all fields with `field_name`
+            // Try parse with specific type
+            // We gathering all possible errors, without skiping any posible error
+            form_data.all(field_name)
+                // If field not exist - add error
+                .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist))
+                .and_then(|v| {
+                    // Iterate over fields
+                    Some(v.iter()
+                        .map(|x| {
+                            // Type inference via Parse
+                            parse_field! (x, i32).ok()
+                                // If parse Error - add error
+                                .or_else(|| add_error(&mut validation_errors, field_name, FormValidationError::ParseError));
+                            // Return same field
+                            x
+                        }).cloned().collect::<String>())
+                });
+        }
+    }
+
+    println!("Errors: {:#?}", validation_errors);
+
+    /*
+    println!("Validators: {:#?}", tst.len());
     for vl in tst {
         println!("Fields: {:#?}", vl.fields);
         println!("Validators count: {:#?}", vl.validators.len());
@@ -111,10 +138,11 @@ fn create_validator(form_data: &Params) -> Result<(), FormValidationErrors> {
             let args = vl.validators_arg[key].to_owned();
             val(args);
             //println!("Index: {:#?}", (*val)(vl.validators_arg[key]));
+            println!("Field: {:#?}", vl.fields[key]);
             println!("Index: {:#?}", vl.validators_arg[key]);
             //val(vl.validators_arg[key]);
         }
-    }
+    }*/
     if validation_errors.is_empty() { Ok(()) } else { Err(validation_errors) }
 }
 
@@ -128,12 +156,12 @@ fn add_error<'a, T>(validation_errors: &mut FormValidationErrors<'a>, field: &'a
     None
 }
 
-fn required(_: ValidatorFuncArgs) {
+pub fn required(_: ValidatorFuncArgs) {
     println!("required");
     // required template
 }
 
-fn max(_: ValidatorFuncArgs) {
+pub fn max(_: ValidatorFuncArgs) {
     println!("max");
     // max template
 }
