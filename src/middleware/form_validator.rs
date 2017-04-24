@@ -115,7 +115,6 @@ impl<'a> Validators<'a> {
                 for field_name in &rules.fields {
                     println!("Fields: {:#?}", field_name);
                     println!("Get: {:#?}", form_data.all(field_name));
-                    println!("Get: {:#?}", form_data.all("data.a"));
                     println!("Args: {:#?}\n\t", args);
 
                     // Fetch fields withour any results
@@ -134,6 +133,11 @@ impl<'a> Validators<'a> {
                                 .map(|x| {
                                     // Type inference via Parse
                                     (rules.type_ref_fn)(x).ok_or(0).ok()
+                                        .and_then(|v| {
+                                            println!("Parsed: OK");
+                                            validator(args.to_owned());
+                                            Some(v)
+                                        })
                                         // If parse Error - add error
                                         .or_else(|| {
                                             add_error(&mut validation_errors, field_name, FormValidationError::ParseError);
