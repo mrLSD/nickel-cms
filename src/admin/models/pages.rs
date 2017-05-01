@@ -26,7 +26,7 @@ impl FormValidator for PageForm {
     fn validators<'a>() -> ValidatorParams<'a> {
         println!("Init validators");
         validators! (
-            ["data.a", "tst2"]: i32 => required(), max(1);
+            ["data.a", "tst2"]: f32 => required(), max(1);
             ["tst3", "tst4"]: i32 => max(1, "2+");
         )
     }

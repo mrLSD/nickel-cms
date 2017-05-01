@@ -1,27 +1,42 @@
+// FormValidator.validators
+// - set validators rules
 use nickel::{
     Params,
 };
 use std;
 use std::collections::HashMap;
 
+macro_rules! parse_fn {
+    ( $vtype:ty ) => {{
+        fn parse(x: &str) -> Option<i32> {
+            if x.parse::<$vtype>().is_ok() { Some(1) } else { None }
+        }
+        parse
+    }};
+}
+
 macro_rules! parse_field {
     ( $field:expr, $vtype:ty ) => {{
         $field.parse::<$vtype>()
-    }}
+    }};
 }
 
 macro_rules! validators {
     ( $([$($field:expr),*]: $vtype:ty => $($func:ident$args:tt),*; )+ ) => {{
         let mut rules: ValidatorParams = Vec::new();
-        $(
+        fn type_ref_parser(vtype: i32){
+
+        }//--
+        $({
             let rule = ValidatorParam {
                 fields: vec![$($field),*],
                 validators: vec![$($func),*],
                 type_ref: stringify!($vtype),
+                type_ref_fn: parse_fn!(i32),
                 validators_arg: validators! ( @validator_func $($args),* ),
             };
             rules.push(rule);
-        )+
+        })+
         rules
     }};
     ( @validator_func $($args:tt),* ) => {{
@@ -56,6 +71,8 @@ pub struct ValidatorParam<'a> {
     pub validators: Vec<fn(ValidatorFuncArgs)>,
     pub validators_arg: Vec<ValidatorFuncArgs>,
     pub type_ref: &'a str,
+    pub type_ref_fn: fn(&str) -> Option<i32>,
+    //--
 }
 
 pub type FormValidationErrors<'a> = HashMap<&'a str, Vec<FormValidationError>>;
@@ -89,13 +106,17 @@ impl<'a> Validators<'a> {
 
     fn create_validator(&self, form_data: &Params) -> Result<(), FormValidationErrors> {
         let mut validation_errors: FormValidationErrors = HashMap::new();
+        let mut validation_warnings: FormValidationErrors = HashMap::new();
 
         for rules in &self.validators {
+            println!("Type ref: {:#?}", rules.type_ref);
             for (key, ref validator) in rules.validators.iter().enumerate() {
                 let args = rules.validators_arg[key].to_owned();
                 for field_name in &rules.fields {
                     println!("Fields: {:#?}", field_name);
-                    println!("Args: {:#?}", args);
+                    println!("Get: {:#?}", form_data.all(field_name));
+                    println!("Get: {:#?}", form_data.all("data.a"));
+                    println!("Args: {:#?}\n\t", args);
 
                     // Fetch fields withour any results
                     // We iterate over all fields with `field_name`
@@ -104,7 +125,7 @@ impl<'a> Validators<'a> {
                     form_data.all(field_name)
                         // If field not exist - add error
                         .or_else(|| {
-                            add_error(&mut validation_errors, field_name, FormValidationError::FieldNotExist);
+                            add_error(&mut validation_warnings, field_name, FormValidationError::FieldNotExist);
                             None
                         })
                         .and_then(|v| {
@@ -112,7 +133,7 @@ impl<'a> Validators<'a> {
                             Some(v.iter()
                                 .map(|x| {
                                     // Type inference via Parse
-                                    parse_field!(x, i32).ok()
+                                    (rules.type_ref_fn)(x).ok_or(0).ok()
                                         // If parse Error - add error
                                         .or_else(|| {
                                             add_error(&mut validation_errors, field_name, FormValidationError::ParseError);
@@ -126,6 +147,7 @@ impl<'a> Validators<'a> {
             }
         }
 
+        println!("Warnings: {:#?}", validation_warnings);
         println!("Errors: {:#?}", validation_errors);
 
         /*
