@@ -68,7 +68,7 @@ pub type ValidatorParams<'a> = Vec<ValidatorParam<'a>>;
 
 pub struct ValidatorParam<'a> {
     pub fields: Vec<&'a str>,
-    pub validators: Vec<fn(ValidatorFuncArgs)>,
+    pub validators: Vec<fn(ValidatorFuncArgs, String)>,
     pub validators_arg: Vec<ValidatorFuncArgs>,
     pub type_ref: &'a str,
     pub type_ref_fn: fn(&str) -> Option<i32>,
@@ -93,7 +93,7 @@ pub trait FormValidator {
     // Validation rules and validators
     fn validators<'a>() -> ValidatorParams<'a>;
     // fill form from form_data to struct
-    // when invoked method all data already correct and validated
+    // after it invoked all data  should already correct and validated
     fn fill_form(form_data: &Params)
             -> Result<Self, FormValidationErrors>
             where Self: std::marker::Sized;
@@ -104,16 +104,33 @@ impl<'a> Validators<'a> {
         Validators { validators: validators }
     }
 
+    /*
+Algorithm for fields fetching and validation:
+1. Fetch request fields by validation fields name.
+1.1. If field not exist add data to Warnings slice.
+2. If field not exit set default value to field.
+3. Parse field by type.
+3.1. If parse error add data to Errors slice and break current iteration to next field.
+4. Init validatorFieldData struct:
+	* fieldName
+	* fieldData
+	* fieldType
+	* errorsData
+	* warningsData
+5. Fetch validators for field item
+5.1. Invoke validator function with params: validatorArgs, validatorFieldData
+5.2. Check is validator return error. If error add it to Error slice.
+    */
     fn create_validator(&self, form_data: &Params) -> Result<(), FormValidationErrors> {
         let mut validation_errors: FormValidationErrors = HashMap::new();
         let mut validation_warnings: FormValidationErrors = HashMap::new();
 
         for rules in &self.validators {
-            println!("Type ref: {:#?}", rules.type_ref);
             for (key, ref validator) in rules.validators.iter().enumerate() {
                 let args = rules.validators_arg[key].to_owned();
                 for field_name in &rules.fields {
-                    println!("Fields: {:#?}", field_name);
+                    println!("Field: {:#?}", field_name);
+                    println!("Type ref: {:#?}", rules.type_ref);
                     println!("Get: {:#?}", form_data.all(field_name));
                     println!("Args: {:#?}\n\t", args);
 
@@ -125,7 +142,8 @@ impl<'a> Validators<'a> {
                         // If field not exist - add error
                         .or_else(|| {
                             add_error(&mut validation_warnings, field_name, FormValidationError::FieldNotExist);
-                            None
+                            println!("ERR: Field not exit");
+                            form_data.all(field_name)
                         })
                         .and_then(|v| {
                             // Iterate over fields
@@ -135,12 +153,13 @@ impl<'a> Validators<'a> {
                                     (rules.type_ref_fn)(x).ok_or(0).ok()
                                         .and_then(|v| {
                                             println!("Parsed: OK");
-                                            validator(args.to_owned());
+                                            validator(args.to_owned(), x.to_owned());
                                             Some(v)
                                         })
                                         // If parse Error - add error
                                         .or_else(|| {
                                             add_error(&mut validation_errors, field_name, FormValidationError::ParseError);
+                                            println!("Parsed: ERR");
                                             None
                                         });
                                     // Return same field
@@ -162,7 +181,7 @@ impl<'a> Validators<'a> {
             println!("Args count: {:#?}", vl.validators_arg.len());
             for (key, ref val) in vl.validators.iter().enumerate() {
                 let args = vl.validators_arg[key].to_owned();
-                val(args);
+<                val(args);
                 //println!("Index: {:#?}", (*val)(vl.validators_arg[key]));
                 println!("Field: {:#?}", vl.fields[key]);
                 println!("Index: {:#?}", vl.validators_arg[key]);
@@ -184,12 +203,14 @@ fn add_error<'a>(validation_errors: &mut FormValidationErrors<'a>, field: &'a st
     }
 }
 
-pub fn required(_: ValidatorFuncArgs) {
-    println!("required");
+pub fn required(_: ValidatorFuncArgs, val: String) {
+    println!("\tValidator -> required {:#?}", val);
+    println!("=======================\n");
     // required template
 }
 
-pub fn max(_: ValidatorFuncArgs) {
-    println!("max");
+pub fn max(_: ValidatorFuncArgs, _: String) {
+    println!("Validator -> max");
+    println!("=======================\n");
     // max template
 }
