@@ -8,10 +8,9 @@ build = "src/build.rs"
 nickel = "*"
 rustc-serialize = "*"
 toml = "0.2.*"
-nickel_postgres = "*"
-ructe = "^0.2"
+ructe = "*"
 tera = "*"
 lazy_static = "*"
 
 [build-dependencies]
-ructe = "^0.2"
+ructe = "*"
